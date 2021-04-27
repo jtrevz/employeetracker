@@ -19,6 +19,8 @@ const connection = mysql.createConnection({
 let rolesArray = []; //how to make this dynamic
 let depArray = [];
 let managerArray = [];
+let localEmployeeArray = [];
+
 class Department {
     constructor(id, name) {
       this.name = name;
@@ -101,7 +103,7 @@ const start = () => {
         } else if (answer.mainquestion === 'View Roles') {
             viewRoles();
         } else if (answer.mainquestion === 'View Employees') {
-            viewEmployees();
+            viewEmployees1();
         } else if (answer.mainquestion === 'Update Employee Role'){
             updateEmployeeRoles();
         } else {
@@ -173,6 +175,7 @@ const employeeQuestions = () => {
                     console.log('Your Manager has been succesfully added!');
                     newmanager();
                     start();
+                    viewEmployees();
                 }
             )
         } else (
@@ -188,6 +191,7 @@ const employeeQuestions = () => {
                 if (err) throw err;
                 console.log('Your Employee has been succesfully added!');
                 start();
+                viewEmployees();
             }
         ))
      })
@@ -243,6 +247,7 @@ const viewDepartments = () => {
         if (err) throw err;
         console.log('------------------DEPARTMENTS------------------');
         console.table(res);
+        start();
     }
     )
 }
@@ -253,18 +258,20 @@ const viewRoles = () => {
             if (err) throw err;
             console.log('----------------------------ROLES----------------------------');
             console.table(res);
+            start();
         }
     )
 }
 
 class Employee {
-    constructor(name, role, salary, department, manager) {
-        this.Name = name;
-        this.Role = role;
-        this.Salary = salary;
-        this.Department = department;
-        this.Manager = manager;
-        }
+    constructor(name, id, role, salary, department, manager) {
+        this.name = name;
+        this.value = id;
+        this.role = role;
+        this.salary = salary;
+        this.department = department;
+        this.manager = manager;
+       }
 }
 
 const getManager = (manager)=> {
@@ -282,17 +289,66 @@ const viewEmployees = () => {
         'SELECT  employee.idem, employee.first_name, employee.last_first, role.title, role.salary, department.name, employee.manager_id FROM employee INNER JOIN role ON employee.idrole = role.idrole INNER JOIN department ON role.iddep = department.iddep', 
         (err, res) => {
             if (err) throw err;
-            console.log('------------------------------------------EMPLOYEES-------------------------------------------')
             tempName = res.map((res) => `${res.first_name} ${res.last_first}`)
-            let y = [];
+            localEmployeeArray = [];
             for(i = 0; i < res.length; i++) {
                 let noodles = getManager(res[i].manager_id);
-                const temp = new Employee (tempName[i], res[i].title, res[i].salary, res[i].name, noodles)
-                y.push(temp);
+                const temp = new Employee (tempName[i],res[i].idem, res[i].title, res[i].salary, res[i].name, noodles)
+                localEmployeeArray.push(temp);
             }
-            console.table(y);
         }
     )
+}
+
+const viewEmployees1 = () => {
+    connection.query(
+        'SELECT  employee.idem, employee.first_name, employee.last_first, role.title, role.salary, department.name, employee.manager_id FROM employee INNER JOIN role ON employee.idrole = role.idrole INNER JOIN department ON role.iddep = department.iddep', 
+        (err, res) => {
+            if (err) throw err;
+            console.log('------------------------------------------EMPLOYEES-------------------------------------------')
+            tempName = res.map((res) => `${res.first_name} ${res.last_first}`)
+            localEmployeeArray = [];
+            for(i = 0; i < res.length; i++) {
+                let noodles = getManager(res[i].manager_id);
+                const temp = new Employee (tempName[i],res[i].idem, res[i].title, res[i].salary, res[i].name, noodles)
+                localEmployeeArray.push(temp);
+            }
+            console.table(localEmployeeArray);
+            start();
+        }
+    )
+}
+
+const updateEmployeeRoles = () => {
+    inquirer
+    .prompt ([
+    {
+        name: 'name',
+        type: 'list',
+        message: 'For which employee would you like to update their role?',
+        choices: localEmployeeArray,
+    },
+    {
+        name : 'role',
+        type: 'list',
+        message: 'What new role would you like to give them?',
+        choices: rolesArray,
+    }
+    ])
+    .then ((response) => {
+        console.log("The employee's role has been succesfully changed!");
+        connection.query(
+            "UPDATE employee SET ? WHERE ?",
+            [
+                {
+                    idrole: response.role
+                },
+                {
+                    idem: response.name
+                }
+            ]
+        )
+    })
 }
 
 connection.connect((err) => {
@@ -301,4 +357,5 @@ connection.connect((err) => {
     newdep();
     newrole();
     newmanager();
+    viewEmployees();
 })
