@@ -4,7 +4,7 @@ This is a command line application that helps the users keep track of their empl
 ![EmployeeTracker](https://user-images.githubusercontent.com/78758382/116194204-218d3500-a6f6-11eb-9c25-f84964686dc6.png)
 
 ## Table of Contents:
-  * [Instructions](#instructions)
+  * [Database](#database)
   * [Instructions](#instructions)
   * [License](#license)
   * [Questions](#questions)
