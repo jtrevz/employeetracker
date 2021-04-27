@@ -348,6 +348,7 @@ const updateEmployeeRoles = () => {
                 }
             ]
         )
+        start();
     })
 }
 
