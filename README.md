@@ -1,4 +1,4 @@
-# Employee Tracker
+# Employee Tracker ![badge](https://img.shields.io/badge/license-MIT-yellow.svg)
 This is a command line application that helps the users keep track of their employees. This application uses several databases (3) to keep track of departments, roles, and employees.
 
 ![EmployeeTracker](https://user-images.githubusercontent.com/78758382/116194204-218d3500-a6f6-11eb-9c25-f84964686dc6.png)
