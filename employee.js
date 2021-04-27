@@ -43,6 +43,7 @@ class Manager {
 const newdep = () => {
     connection.query (
         'SELECT * FROM department', (err, res) => {
+            depArray = [];
             if(err) throw err;
             for (i = 0 ; i < res.length; i++) {
                 const temp = new Department (res[i].iddep, res[i].name)
@@ -55,6 +56,7 @@ const newdep = () => {
 const newrole = () => {
     connection.query(
         'SELECT * FROM role', (err, res) => {
+            rolesArray = [];
             if (err) throw err;
             for(i = 0; i < res.length; i++) {
                 const temp = new Role (res[i].idrole, res[i].title)
@@ -69,6 +71,7 @@ const newmanager = () => {
      (err, res) => {
         if (err) throw err;
         const tempA = res.map((res) => `${res.first_name} ${res.last_first}`);
+        managerArray = [];
         for(i = 0;i <res.length; i++) {
             const temp = new Manager (res[i].idem, tempA[i])
             managerArray.push(temp);
@@ -167,7 +170,7 @@ const employeeQuestions = () => {
                 },
                 (err) => {
                     if (err) throw err;
-                    console.log('Your Role has been succesfully added!');
+                    console.log('Your Manager has been succesfully added!');
                     newmanager();
                     start();
                 }
@@ -183,7 +186,7 @@ const employeeQuestions = () => {
             },
             (err) => {
                 if (err) throw err;
-                console.log('Your Role has been succesfully added!');
+                console.log('Your Employee has been succesfully added!');
                 start();
             }
         ))
@@ -232,6 +235,64 @@ const roleQuestions = () => {
             }
         )
     })
+}
+
+const viewDepartments = () => {
+    connection.query(
+    'SELECT name FROM department', (err, res) => {
+        if (err) throw err;
+        console.log('------------------DEPARTMENTS------------------');
+        console.table(res);
+    }
+    )
+}
+
+const viewRoles = () => {
+    connection.query(
+        'SELECT role.title, role.salary, department.name  FROM role INNER JOIN department ON role.iddep= department.iddep', (err, res) => {
+            if (err) throw err;
+            console.log('----------------------------ROLES----------------------------');
+            console.table(res);
+        }
+    )
+}
+
+class Employee {
+    constructor(name, role, salary, department, manager) {
+        this.Name = name;
+        this.Role = role;
+        this.Salary = salary;
+        this.Department = department;
+        this.Manager = manager;
+        }
+}
+
+const getManager = (manager)=> {
+    if (! manager) {return null;} 
+    for (x = 0 ; x < managerArray.length; x ++){
+        if (managerArray[x].value === manager) {
+            return managerArray[x].name;
+        }
+    }}
+
+let tempName = [];
+
+const viewEmployees = () => {
+    connection.query(
+        'SELECT  employee.idem, employee.first_name, employee.last_first, role.title, role.salary, department.name, employee.manager_id FROM employee INNER JOIN role ON employee.idrole = role.idrole INNER JOIN department ON role.iddep = department.iddep', 
+        (err, res) => {
+            if (err) throw err;
+            console.log('------------------------------------------EMPLOYEES-------------------------------------------')
+            tempName = res.map((res) => `${res.first_name} ${res.last_first}`)
+            let y = [];
+            for(i = 0; i < res.length; i++) {
+                let noodles = getManager(res[i].manager_id);
+                const temp = new Employee (tempName[i], res[i].title, res[i].salary, res[i].name, noodles)
+                y.push(temp);
+            }
+            console.table(y);
+        }
+    )
 }
 
 connection.connect((err) => {

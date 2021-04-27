@@ -24,5 +24,6 @@ last_first VARCHAR(30) NOT NULL,
 idrole INTEGER,
 manager_id INTEGER NULL,
 PRIMARY KEY (idem),
-FOREIGN KEY (idrole) REFERENCES role (idrole)
+FOREIGN KEY (idrole) REFERENCES role (idrole),
+FOREIGN KEY (manager_id) REFERENCES employee (idem)
 )ENGINE=INNODB;
